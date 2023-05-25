@@ -7,7 +7,6 @@ const showOverlay = () => {
   dotsNum = 0;
 
   loadingOverlay.style.display = "flex";
-  console.log(document.querySelector("#loading-overlay p"));
 
   updateInterval = setInterval(() => {
     dotsNum += 1;

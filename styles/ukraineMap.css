@@ -1,3 +1,7 @@
+#ukraine-map {
+  text-align: center;
+}
+
 .region-polygon {
   cursor: pointer;
   stroke: #bdc3c7;

@@ -31,6 +31,12 @@ const updateState = () => {
   const ownership_type = ownershipTypeSubject.value;
   const region = regionSubject.value;
 
+  const mapHeaderElement = document.querySelector("#ukraine-map h3");
+  const pieHeaderElement = document.querySelector("#ownership-type-pie h3");
+
+  mapHeaderElement.innerHTML = "Ownership: " + (ownership_type ?? "all types");
+  pieHeaderElement.innerHTML = "Region: " + (region ?? "all Ukraine");
+
   const regionValues = new Map();
   const ownershipValues = new Map();
 

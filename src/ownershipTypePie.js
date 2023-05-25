@@ -60,8 +60,6 @@ const setValues = (inputValues) => {
 
   let values = [];
   inputValues.forEach((cnt, name) => {
-    console.log(cnt);
-
     const percentage = (cnt * 100) / n;
     const roundedPercentage = Math.round(percentage * 10) / 10;
     const representation = roundedPercentage
@@ -140,7 +138,7 @@ const setValues = (inputValues) => {
 
   const legend = plot
     .append("g")
-    .attr("transform", `translate(${(width - 180) / 2},${height - 75})`);
+    .attr("transform", `translate(${(width - 180) / 2},${height - 85})`);
   legend
     .append("rect")
     .attr("width", 180)

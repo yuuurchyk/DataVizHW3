@@ -3,8 +3,10 @@ import { BehaviorSubject } from "rxjs";
 
 const regionSubject = new BehaviorSubject(null);
 
+let values = new Map();
+
 const width = 900;
-const height = 550;
+const height = 500;
 
 const plot = d3
   .select("#ukraine-map")
@@ -38,11 +40,13 @@ const initMap = async () => {
     .data(geoJson.features)
     .join("path")
     .attr("d", geoGenerator)
-    .attr("fill", "none")
     .classed("region-polygon", true)
     .on("click", (e, d) => {
-      d3.select(e.target).raise();
       e.stopPropagation();
+
+      if (!values.has(d.properties.HASC_1)) return;
+
+      d3.select(e.target).raise();
 
       const next =
         regionSubject.value === d.properties.HASC_1
@@ -92,6 +96,8 @@ const initMap = async () => {
 };
 
 const setValues = (valuesMap) => {
+  values = valuesMap;
+
   const DARK_BLUE = "#34495e";
   const RED = "#e74c3c";
 
@@ -102,7 +108,7 @@ const setValues = (valuesMap) => {
     const code = d.properties.HASC_1;
 
     if (valuesMap.has(code)) return gradient(valuesMap.get(code));
-    else return "none";
+    else return "#7f8c8d";
   });
 
   plot.selectAll("text").text((d) => valuesMap.get(d.properties.HASC_1) ?? "");
