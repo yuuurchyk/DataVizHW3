@@ -2,6 +2,7 @@ import { initYearsSlider } from "./src/yearsSlider";
 import * as ukraineMap from "./src/ukraineMap";
 import * as loadingOverlay from "./src/loadingOverlay";
 import * as ownershipTypePie from "./src/ownershipTypePie";
+import * as unisBar from "./src/unisBar";
 import { ownershipTypeSubject } from "./src/ownershipTypePie";
 import { regionSubject } from "./src/ukraineMap";
 
@@ -33,12 +34,20 @@ const updateState = () => {
 
   const mapHeaderElement = document.querySelector("#ukraine-map h3");
   const pieHeaderElement = document.querySelector("#ownership-type-pie h3");
+  const unisBarHeaderElement = document.querySelector("#unis-bar h3");
 
-  mapHeaderElement.innerHTML = "Ownership: " + (ownership_type ?? "all types");
-  pieHeaderElement.innerHTML = "Region: " + (region ?? "all Ukraine");
+  {
+    const ownershipTypeString = "Ownership: " + (ownership_type ?? "all types");
+    const regionString = "Region: " + (region ?? "all Ukraine");
+
+    mapHeaderElement.innerHTML = ownershipTypeString;
+    pieHeaderElement.innerHTML = regionString;
+    unisBarHeaderElement.innerHTML = `${regionString}, ${ownershipTypeString} (${minYear} - ${maxYear})`;
+  }
 
   const regionValues = new Map();
   const ownershipValues = new Map();
+  let unisForBar = [];
 
   for (const uni of universities) {
     if (uni.year < minYear || uni.year > maxYear) continue;
@@ -53,10 +62,18 @@ const updateState = () => {
     if (!ownership_type || ownership_type == uni.ownership_type) {
       regionValues.set(uni.code, (regionValues.get(uni.code) ?? 0) + 1);
     }
+
+    if (
+      (!region || region == uni.code) &&
+      (!ownership_type || ownership_type == uni.ownership_type)
+    ) {
+      unisForBar.push(uni);
+    }
   }
 
   ukraineMap.setValues(regionValues);
   ownershipTypePie.setValues(ownershipValues);
+  unisBar.setUniversities(minYear, maxYear, unisForBar);
 };
 
 yearsSubject.subscribe((_) => updateState());
