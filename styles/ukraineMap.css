@@ -1,0 +1,17 @@
+.region-polygon {
+  cursor: pointer;
+  stroke: #bdc3c7;
+  stroke-width: 1;
+  cursor: pointer;
+}
+
+.region-polygon__selected {
+  stroke: #3498db;
+  stroke-width: 3;
+}
+
+.region-number {
+  font-size: 10px;
+  font-weight: bold;
+  fill: #ecf0f1;
+}

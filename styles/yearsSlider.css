@@ -1,0 +1,14 @@
+#years-slider {
+  width: 50%;
+  margin: 20px 25%;
+  text-align: center;
+}
+
+#years-slider p {
+  display: inline-block;
+  width: 45%;
+}
+
+#years-slider p span {
+  font-weight: bold;
+}

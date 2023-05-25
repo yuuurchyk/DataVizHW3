@@ -1,0 +1,33 @@
+#ownership-type-pie {
+  text-align: center;
+}
+
+.pie-region {
+  cursor: pointer;
+  stroke: #ecf0f1;
+  stroke-width: 1px;
+}
+
+.pie-region__selected {
+  stroke: #e74c3c;
+  stroke-width: 3px;
+}
+
+#pie-legend {
+  fill: white;
+  stroke: #34495e;
+}
+
+.pie-legend-label {
+  stroke: #ecf0f1;
+}
+
+.pie-legend-label-text {
+  font-size: 12px;
+}
+
+.pie-number {
+  font-weight: bold;
+  fill: #ecf0f1;
+  font-size: 15px;
+}
