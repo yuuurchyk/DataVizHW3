@@ -6,11 +6,6 @@ const height = 400;
 const paddingHorizontal = 50;
 const paddingVertical = 40;
 
-const colors = new Map();
-colors.set("state", "#2ecc71");
-colors.set("private", "#f39c12");
-colors.set("municipal", "#3498db");
-
 const plot = d3
   .select("#unis-bar")
   .select("svg")
@@ -21,55 +16,74 @@ const clear = () => {
   plot.selectAll("*").remove();
 };
 
+const transformData = (minYear, maxYear, universities) => {
+  const byYear = new Map();
+  for (let i = minYear; i <= maxYear; ++i)
+    byYear.set(i, {
+      year: i,
+      state: 0,
+      private: 0,
+      municipal: 0,
+    });
+
+  for (const uni of universities) byYear.get(uni.year)[uni.ownership_type] += 1;
+
+  let res = [];
+  for (let i = minYear; i <= maxYear; ++i) res.push(byYear.get(i));
+
+  const stackGen = d3
+    .stack()
+    .keys(["state", "private", "municipal"])
+    .order(d3.stackOrderNone)
+    .offset(d3.stackOffsetNone);
+
+  const stack = stackGen(res);
+
+  return stack;
+};
+
+const getMaxCnt = (universities) => {
+  const cnts = new Map();
+
+  for (const uni of universities)
+    cnts.set(uni.year, (cnts.get(uni.year) ?? 0) + 1);
+
+  let res = 0;
+  cnts.forEach((value, key) => {
+    res = Math.max(res, value);
+  });
+
+  return res;
+};
+
 const setUniversities = (minYear, maxYear, universities) => {
   clear();
 
   if (universities.length == 0) return;
 
-  const ownerships = new Set();
-  for (const uni of universities) ownerships.add(uni.ownership_type);
+  const nYears = maxYear - minYear + 1;
 
-  const yearsExtent = [minYear, maxYear];
+  const data = transformData(minYear, maxYear, universities);
 
-  const cntByYear = new Map();
-  for (let i = yearsExtent[0]; i <= yearsExtent[1]; ++i) cntByYear.set(i, 0);
-  universities.forEach((uni) =>
-    cntByYear.set(uni.year, cntByYear.get(uni.year) + 1)
-  );
+  const maxCnt = getMaxCnt(universities);
 
-  let data = [];
-  for (let i = yearsExtent[0]; i <= yearsExtent[1]; ++i) {
-    if (cntByYear.get(i) == 0) continue;
-    data.push({
-      year: i,
-      cnt: cntByYear.get(i),
-    });
-  }
-
-  const maxCnt = d3.max(data, (d) => d.cnt);
-
-  let years = [];
-  for (let i = yearsExtent[0]; i <= yearsExtent[1]; ++i) years.push(i);
+  const years = [];
+  for (let i = minYear; i <= maxYear; ++i) years.push(i);
 
   const xScale = d3
     .scaleBand()
-    .range([0, width - 2 * paddingHorizontal])
-    .domain(years);
+    .domain(years)
+    .range([0, width - 2 * paddingHorizontal]);
   const xAxis = d3
     .axisBottom()
     .scale(xScale)
     .tickValues(
       xScale.domain().filter(function (d, i) {
-        return !(i % 10);
+        if (nYears > 100) return !(i % 20);
+        else if (nYears > 50) return !(i % 10);
+        else return !(i % 2);
       })
     );
-
-  const yScale = d3
-    .scaleLinear()
-    .range([height - 2 * paddingVertical, 0])
-    .domain([0, maxCnt]);
-  const yAxis = d3.axisLeft().scale(yScale).ticks(5);
-
   plot
     .append("g")
     .attr(
@@ -77,21 +91,38 @@ const setUniversities = (minYear, maxYear, universities) => {
       `translate(${paddingHorizontal}, ${height - paddingVertical})`
     )
     .call(xAxis);
+
+  const yScale = d3
+    .scaleLinear()
+    .range([height - 2 * paddingVertical, 0])
+    .domain([0, maxCnt]);
+  const yAxis = d3.axisLeft().scale(yScale).ticks(5);
   plot
     .append("g")
     .attr("transform", `translate(${paddingHorizontal}, ${paddingVertical})`)
     .call(yAxis);
 
+  const color = d3
+    .scaleOrdinal()
+    .domain(["state", "private", "municipal"])
+    .range(["#2ecc71", "#f39c12", "#3498db"]);
+
   plot
     .append("g")
-    .selectAll("rect")
+    .selectAll("g")
     .data(data)
-    .join("rect")
-    .attr("fill", "red")
+    .enter()
+    .append("g")
+    .attr("fill", (d) => color(d.key))
+    .selectAll("rect")
+    .data((d) => d)
+    .enter()
+    .append("rect")
+    .attr("x", (d) => paddingHorizontal + xScale(d.data.year))
+    .attr("y", (d) => paddingVertical + yScale(d[1]))
+    .attr("height", (d) => yScale(d[0]) - yScale(d[1]))
     .attr("width", xScale.bandwidth())
-    .attr("x", (d) => paddingHorizontal + xScale(d.year))
-    .attr("y", (d) => paddingVertical + yScale(d.cnt))
-    .attr("height", (d) => height - 2 * paddingVertical - yScale(d.cnt));
+    .attr("rx", 1);
 };
 
 export { setUniversities, clear };
